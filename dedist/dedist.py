@@ -72,7 +72,7 @@ def sample_E(fun,theta,par,sigma,x,x_,n,full_return=False):
     else:
         return sol_th
         
-def est_p(fun,theta,par,sigma,x,x_,n,full_return=False):
+def est_p(fun,theta,par,sigma,x,x_,full_return=False):
     ''' For each stimulus in fun, estimates the probability that it gives the
     smallest error. It does this by find the multivariate normal for the error
     at each x_, with the error at each other x_' subtracted.
@@ -94,8 +94,6 @@ def est_p(fun,theta,par,sigma,x,x_,n,full_return=False):
         preferred values of neurons
     x_ : array
         actual values to be tried to decode
-    n : int
-        number of realizations to sample
     full_return : binary
         if False, only returns decoding distribution. If true, also returns
         the calculated means and covariance for each stimulus in x_
@@ -171,3 +169,49 @@ def est_p(fun,theta,par,sigma,x,x_,n,full_return=False):
         return p, means,covs   
     else:
         return p
+        
+def calc_crb(dfun,sigma,par,x,x_,db=0,b=0):
+    ''' Estimates the optimally possible decoding distribution from the
+    cramer-rao bound, assuming a neurons response is r_i = f_i + n_i,
+    where n_i drawn from a normal dist with mean 0 and variance sigma.
+    
+    Only works for 1D systems.
+    
+    Parameters
+    ----------
+    dfun : function
+        The derivative of the normal function. Should be of furm
+        dfun(x,x_,par)
+    sigma : float
+        The variance in the noise
+    par : array
+        Parameters of the model
+    x : array
+        The prefered stimulus values
+    x_ : array
+        The stimulus values at which to evaluate the Fisher information
+    db : array, optional
+        The derivative of the bias, if any
+    b : array, optional
+        The bias, if any
+        
+    Returns
+    -------
+    array
+        The cramer-rao bound at each stimulus value in x_
+        
+    '''
+    # find population derivatives
+    f = dfun(x,x_[:,None],par)
+    
+    # find the Fisher information at each stimulus value
+    I = np.sum( f**2 , axis=1 )/sigma**2
+    
+    # find the CBR
+    cbr = (1+db)**2/I+b**2
+    
+    
+    
+    return cbr
+    
+    
