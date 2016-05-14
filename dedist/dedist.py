@@ -72,7 +72,7 @@ def sample_E(fun,theta,par,sigma,x,x_,n,full_return=False):
     else:
         return sol_th
         
-def est_p(fun,theta,par,sigma,x,x_,full_return=False):
+def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False):
     ''' For each stimulus in fun, estimates the probability that it gives the
     smallest error. It does this by find the multivariate normal for the error
     at each x_, with the error at each other x_' subtracted.
@@ -94,9 +94,14 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False):
         preferred values of neurons
     x_ : array
         actual values to be tried to decode
-    full_return : binary
+    full_return : binary,optional
         if False, only returns decoding distribution. If true, also returns
-        the calculated means and covariance for each stimulus in x_
+        the calculated means and covariance for each stimulus in x_. 
+        Default False
+    lowmem : binary,optional
+        Whether to use lower memory mode (useful if calculting big
+        covariance matrices). Will not be able to use full_return! 
+        Default False
         
     Returns
     -------
@@ -114,9 +119,14 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False):
         for stimulus i. 
         
         
-    ''' 
+    '''  
     # find dimensionality of multivar Gaussian
     ns = len(x_)    
+    
+    # predefine output distribution
+    low = -np.ones(len(x_)-1)*1e50
+    upp = np.zeros(len(x_)-1)    
+    p = np.zeros(ns)
     
     # find real population response
     f = fun(x,theta,par)
@@ -135,15 +145,36 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False):
     means = np.zeros((ns-1,ns)) # sum((f-f')**2)
     # loop over all to be generated means
     for i in range(ns):
+        print '\r'+str(i), 
         # loop over all stimuli, except when i=j
         means[:i,i] = np.sum( diffs_sq[i,:i] - 2*f*diffs[i,:i],axis=1 )
         means[i:,i] = np.sum( diffs_sq[i,i+1:] - 2*f*diffs[i,i+1:],axis=1 )
-    
+    print ''
+        
+    if lowmem:
+        print 'Low memory mode. Finding p[x] of ' + str(ns) + ':'
+        for i in range(ns):
+            print '\r'+str(i), 
+            # find current covariance
+            cov = np.zeros((ns-1,ns-1))
+            cov[:i,:i] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
+                                  *diffs[i,:i],axis=2)
+            cov[:i,i:] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
+                                      *diffs[i,i+1:],axis=2)
+            cov[i:,:i] = 4*sigma**2*np.sum(diffs[i,i+1:][:,None]
+                                      *diffs[i,:i],axis=2)
+            cov[i:,i:] = 4*sigma**2*np.sum(diffs[i,i+1:][:,None]
+                                  *diffs[i,i+1:],axis=2)
+            
+            # find p
+            p[i],e = mvn.mvnun(low,upp,means[:,i],cov)
+            
+
     # now for the tough one, the covariances
     print 'finding covariances, ',
-    covs = np.zeros((ns-1,ns-1,ns))
     print 'doing set x of ' + str(ns) + ':'
     # loop over coveriances to find
+    covs = np.zeros((ns-1,ns-1,ns))
     for i in range(ns):
         print '\r'+str(i), 
         covs[:i,:i,i] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
@@ -156,10 +187,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False):
                                   *diffs[i,i+1:],axis=2)
     print ''
     
-    # calculate the cumulative distribution for each of the calculated covarainces
-    low = -np.ones(len(x_)-1)*1e50
-    upp = np.zeros(len(x_)-1)
-    p = np.zeros(ns)
+    # calculate the cumulative distribution for each of the calculated covs
     print 'calculating probability x of ' + str(ns) + ':'
     for i in range(ns):
         print '\r'+str(i), 
