@@ -6,6 +6,91 @@ Author: Sander Keemink, swkeemink@scimail.eu
 import numpy as np
 from scipy.stats import mvn
 
+def get_means(fun, theta, par, sigma, x, x_):
+    ''' find means for multivariate normal describing error landscape
+
+    Parameters
+    ----------
+    fun : function
+        Function to be used. Assumed to be of form
+        fun(x,x_,par)
+        where x and x_ are described below, and par are the basic
+        model parameters
+    theta : array/float
+        the real stimulus value
+    par : array
+        model parameters
+    sigma : float
+        sigma^2 is the variance of the gaussian noise
+    x : array
+        preferred values of neurons
+    x_ : array
+        actual values to be tried to decode
+    full_return : binary
+        if False, only returns decoding distribution. If true, also returns
+        sampled errors, calculated mean, and covariance
+        
+    Returns
+    -------
+    array 
+        for each stimulus in x_, what the mean error will be
+    '''
+    # find real population response
+    f = fun(x,theta,par)
+    
+    # find possible function values
+    Fs = fun(x,x_.reshape(x_.shape+(1,)),par)
+    
+    # first, find the means
+    means = np.sum( (f-Fs)**2,axis=1 )
+    
+    return means
+    
+def get_cov(fun,theta,par,sigma,x,x_):
+    ''' find covariance matrix for multivariate normal describing error 
+    landscape
+    
+    Parameters
+    ----------
+    fun : function
+        Function to be used. Assumed to be of form
+        fun(x,x_,par)
+        where x and x_ are described below, and par are the basic
+        model parameters
+    theta : array/float
+        the real stimulus value
+    par : array
+        model parameters
+    sigma : float
+        sigma^2 is the variance of the gaussian noise
+    x : array
+        preferred values of neurons
+    x_ : array
+        actual values to be tried to decode
+    full_return : binary
+        if False, only returns decoding distribution. If true, also returns
+        sampled errors, calculated mean, and covariance
+        
+    Returns
+    -------
+    array 
+        for each stimulus in x_, what the mean error will be
+    '''    
+    # find dimensionality of multivar Gaussian
+    ns = len(x_)    
+    
+    # find real population response
+    f = fun(x,theta,par)
+    
+    # find possible function values
+    Fs = fun(x,x_.reshape(x_.shape+(1,)),par)
+    
+    # find the covariances
+    cov = np.zeros((ns,ns))
+    cov = 4*sigma**2*np.sum(Fs*Fs[:,None],axis=2)
+    
+    return cov    
+    
 def sample_E(fun,theta,par,sigma,x,x_,n,full_return=False):
     ''' Samples n errors from a multivariate gaussian distribution.
     
