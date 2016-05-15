@@ -6,7 +6,7 @@ Author: Sander Keemink, swkeemink@scimail.eu
 import numpy as np
 from scipy.stats import mvn
 
-def get_means(fun, theta, par, sigma, x, x_):
+def get_means(fun, theta, par, x, x_):
     ''' find means for multivariate normal describing error landscape
 
     Parameters
@@ -20,8 +20,6 @@ def get_means(fun, theta, par, sigma, x, x_):
         the real stimulus value
     par : array
         model parameters
-    sigma : float
-        sigma^2 is the variance of the gaussian noise
     x : array
         preferred values of neurons
     x_ : array
@@ -235,7 +233,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False):
         means[:i,i] = np.sum( diffs_sq[i,:i] - 2*f*diffs[i,:i],axis=1 )
         means[i:,i] = np.sum( diffs_sq[i,i+1:] - 2*f*diffs[i,i+1:],axis=1 )
     print ''
-        
+    print ns
     if lowmem:
         print 'Low memory mode. Finding p[x] of ' + str(ns) + ':'
         for i in range(ns):
@@ -253,7 +251,8 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False):
             
             # find p
             p[i],e = mvn.mvnun(low,upp,means[:,i],cov)
-            
+            return cov,means[i],p
+        return p         
 
     # now for the tough one, the covariances
     print 'finding covariances, ',
