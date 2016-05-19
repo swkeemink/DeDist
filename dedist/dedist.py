@@ -251,7 +251,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False):
             
             # find p
             p[i],e = mvn.mvnun(low,upp,means[:,i],cov)
-            return cov,means[i],p
+            
         return p         
 
     # now for the tough one, the covariances
