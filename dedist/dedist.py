@@ -314,15 +314,13 @@ def calc_crb(dfun,sigma,par,x,x_,db=0,b=0):
         
     '''
     # find population derivatives
-    f = dfun(x,x_[:,None],par)
+    df = dfun(x,x_[:,None],par)
     
     # find the Fisher information at each stimulus value
-    I = np.sum( f**2 , axis=1 )/sigma**2
+    I = np.sum( df**2 , axis=1 )/sigma**2
     
     # find the CBR
-    cbr = (1+db)**2/I+b**2
-    
-    
+    cbr = (1+db)**2/I    
     
     return cbr
     
