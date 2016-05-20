@@ -320,8 +320,9 @@ def calc_crb(dfun,sigma,par,x,x_,db=0,b=0):
     I = np.sum( df**2 , axis=1 )/sigma**2
     
     # find the CBR
-    cbr = (1+db)**2/I    
+    crb = (1+db)**2/I
+        
     
-    return cbr
+    return crb
     
     
