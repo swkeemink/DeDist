@@ -302,8 +302,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     if verbose: print ''
     
     # calculate the cumulative distribution for each of the calculated covs
-    if verbose: 
-        print 'Calculating cumulative distributions'        
+    if verbose: print 'Calculating cumulative distributions'        
 
     # calculate probabilities
     pool = Pool(None) # to use less than max processes, change 'None' to number
