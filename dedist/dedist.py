@@ -225,7 +225,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     diffs_sq = (fun(x,x_mult,par)[:,None]**2-fun(x,x_mult,par)**2)
     
     # then, find the means
-    print 'finding means'
+    if verbose: print 'finding means'
     means = np.zeros((ns-1,ns)) # sum((f-f')**2)
     # loop over all to be generated means
     for i in range(ns):
@@ -235,9 +235,11 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
         means[i:,i] = np.sum( diffs_sq[i,i+1:] - 2*f*diffs[i,i+1:],axis=1 )
     if verbose: print ''
 
+    # If low memory, only calculate one covariance matrix at a time
     if lowmem:
-        print 'Low memory mode.'
-        if verbose: print 'Finding p[x] of ' + str(ns) + ':'
+        if verbose: 
+            print 'Low memory mode.'
+            print 'Finding p[x] of ' + str(ns) + ':'
         for i in range(ns):
             if verbose: print '\r'+str(i), 
             # find current covariance
@@ -257,8 +259,9 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
         return p         
 
     # now for the tough one, the covariances
-    print 'finding covariances, ',
-    if verbose: print 'doing set x of ' + str(ns) + ':'
+    if verbose: 
+        print 'finding covariances, ',
+        print 'doing set x of ' + str(ns) + ':'
     # loop over coveriances to find
     covs = np.zeros((ns-1,ns-1,ns))
     for i in range(ns):
@@ -274,8 +277,10 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     if verbose: print ''
     
     # calculate the cumulative distribution for each of the calculated covs
-    print 'Calculating cumulative distributions'
-    if verbose: print 'calculating probability x of ' + str(ns) + ':'
+    if verbose: 
+        print 'Calculating cumulative distributions'        
+        
+    
     p = np.zeros(ns)    
     for i in range(ns):
         if verbose: print '\r'+str(i), 
