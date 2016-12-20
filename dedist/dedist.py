@@ -5,6 +5,31 @@ Author: Sander Keemink, swkeemink@scimail.eu
 
 import numpy as np
 from scipy.stats import mvn
+from multiprocessing import Pool
+
+def multi_fun(inputs):
+    ''' Function to apply mvnun in paralell
+    
+    Parameters
+    ----------
+    inputs : list
+        [0], array, lower bounds
+        [1], array, upper bounds
+        [2], array, means
+        [3], array, covariance matrix
+        
+    Returns
+    -------
+    array
+        probabilities for each stimulus
+    
+    '''
+    low = inputs[0]
+    upp = inputs[1]
+    mean = inputs[2]
+    cov = inputs[3]
+    p,e = mvn.mvnun(low,upp,mean,cov)
+    return p
 
 def get_means(fun, theta, par, x, x_):
     ''' find means for multivariate normal describing error landscape
@@ -279,13 +304,13 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     # calculate the cumulative distribution for each of the calculated covs
     if verbose: 
         print 'Calculating cumulative distributions'        
-        
+
+    # calculate probabilities
+    pool = Pool(None) # to use less than max processes, change 'None' to number
+    inputs = [[low,upp,means[:,i],covs[:,:,i]] for i in range(ns)]
+    p = pool.map(multi_fun,inputs) 
     
-    p = np.zeros(ns)    
-    for i in range(ns):
-        if verbose: print '\r'+str(i), 
-        p[i],e = mvn.mvnun(low,upp,means[:,i],covs[:,:,i])
-        
+       
     if full_return:
         return p, means, covs   
     else:
