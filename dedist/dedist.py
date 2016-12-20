@@ -208,10 +208,9 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     # find dimensionality of multivar Gaussian
     ns = len(x_)    
     
-    # predefine output distribution
+    # set integration bounds
     low = -np.ones(len(x_)-1)*1e50
     upp = np.zeros(len(x_)-1)    
-    p = np.zeros(ns)
     
     # find real population response
     f = fun(x,theta,par)
@@ -277,6 +276,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     # calculate the cumulative distribution for each of the calculated covs
     print 'Calculating cumulative distributions'
     if verbose: print 'calculating probability x of ' + str(ns) + ':'
+    p = np.zeros(ns)    
     for i in range(ns):
         if verbose: print '\r'+str(i), 
         p[i],e = mvn.mvnun(low,upp,means[:,i],covs[:,:,i])
