@@ -287,7 +287,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
         p[i],e = mvn.mvnun(low,upp,means[:,i],covs[:,:,i])
         
     if full_return:
-        return p, means,covs   
+        return p, means, covs   
     else:
         return p
         
