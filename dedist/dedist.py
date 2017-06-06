@@ -315,6 +315,125 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     else:
         return p
 
+def est_p_cor(fun,theta,par,cov,x,x_,full_return=False,lowmem=False,verbose=True):
+    ''' For each stimulus in fun, estimates the probability that it gives the
+    smallest error. It does this by find the multivariate normal for the error
+    at each x_, with the error at each other x_' subtracted.
+
+    This function does the same as est_p(), but for correlated noise. If you
+    have uncorrelated noise, use est_p() as it is faster.
+
+    Parameters
+    ----------
+    fun : function
+        Function to be used. Assumed to be of form
+        fun(x,x_,par)
+        where x and x_ are described below, and par are the basic
+        model parameters
+    theta : array/float
+        the real stimulus value
+    par : array
+        model parameters
+    cov : array
+        The covariance matrix for the noise
+    x : array
+        preferred values of neurons
+    x_ : array
+        actual values to be tried to decode
+    full_return : binary,optional
+        if False, only returns decoding distribution. If true, also returns
+        the calculated means and covariance for each stimulus in x_.
+        Default False
+    lowmem : bool, optional
+        Whether to use lower memory mode (useful if calculting big
+        covariance matrices). Will not be able to use full_return!
+        Default False
+    verbose : bool, optional
+        Whether to print progress or not
+
+    Returns
+    -------
+    array
+        for each stimulus in x_, the probability that this has the smallest
+        error
+    if full_return:
+    array
+        The full set of means. Dimensions as (len(x_)-1,len(x_)), such that
+        means[:,i] describes the full set of means for the error differences
+        with stimulus i.
+    array
+        The full set of covariances. Dimensions as (len(x_)-1,len(x_)-1,
+        len(x_)). Thus covs[:,:,i] describes the relevant covariance matrix
+        for stimulus i.
+
+
+    '''
+    # find dimensionality of multivar Gaussian
+    ns = len(x_)
+
+    # get inverse covariance
+    cov_i = np.linalg.inv(cov)
+
+    # set integration bounds
+    low = -np.ones(len(x_)-1)*1e50
+    upp = np.zeros(len(x_)-1)
+
+    # find real population response
+    f = fun(x,theta,par)
+
+    # make multidimensional version of x_ so less need for for loops
+    # a + b.reshape(b.shape+(1,)) gives all possible combinations between
+    # a and b
+    x_mult = x_.reshape(x_.shape+(1,))
+
+    # first, find all required function differences
+    diffs_true = f - fun(x,x_mult,par)
+    Lmeans = np.array([np.dot(np.dot(diffs_true[a, :], cov_i),
+                              diffs_true[a, :]) for a in range(ns)])
+    diffs = (fun(x,x_mult,par)[:,None]-fun(x,x_mult,par))
+
+    # then, find the means
+    means = np.zeros((ns-1, ns))
+    if verbose: print 'finding means'
+    for m in range(ns):
+        if verbose: print '\r'+str(m),
+        means[:m, m] = Lmeans[m] - Lmeans[:m]
+        means[m:, m] = Lmeans[m] - Lmeans[m+1:]
+    if verbose: print ''
+
+    # now for the covariances
+    if verbose:
+        print 'finding covariances, ',
+        print 'doing set x of ' + str(ns) + ':'
+    # loop over coveriances to find
+    covs = np.zeros((ns-1, ns-1, ns))
+    for m in range(ns):
+        if verbose: print '\r'+str(m),
+        for a in range(m):
+            for b in range(m):
+                covs[a, b, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
+                                       diffs[m, b, :])
+            for b in range(m+1, ns):
+                covs[a, b-1, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
+                                         diffs[m, b, :])
+        for a in range(m+1, ns):
+            for b in range(m):
+                covs[a-1, b, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
+                                         diffs[m, b, :])
+            for b in range(m+1, ns):
+                covs[a-1, b-1, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
+                                           diffs[m, b, :])
+
+    if verbose: print ''
+
+    # calculate the cumulative distribution for each of the calculated covs
+    if verbose: print 'Calculating cumulative distributions'
+
+    # calculate probabilities
+    pool = Pool(None)  # to use less than max processes, change 'None' to number
+    inputs = [[low, upp, means[:, i], 4*covs[:, :, i]] for i in range(ns)]
+    p = pool.map(multi_fun, inputs)
+    pool.close()
 
     if full_return:
         return p, means, covs
