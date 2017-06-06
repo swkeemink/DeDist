@@ -308,7 +308,13 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     pool = Pool(None) # to use less than max processes, change 'None' to number
     inputs = [[low,upp,means[:,i],covs[:,:,i]] for i in range(ns)]
     p = pool.map(multi_fun,inputs)
-    pool.Close()
+    pool.close()
+
+    if full_return:
+        return p, means, covs
+    else:
+        return p
+
 
     if full_return:
         return p, means, covs
