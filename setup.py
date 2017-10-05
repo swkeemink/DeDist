@@ -34,7 +34,6 @@ setup(
     download_url="https://github.com/swkeemink/DeDist/archive/0.1.tar.gz",
     package_dir={NAME: "./dedist"},
     packages=[NAME],
-    license="GNU",
     long_description=read('README.md'),
     classifiers=[
         "License :: GNU",
