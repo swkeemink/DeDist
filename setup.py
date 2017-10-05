@@ -36,7 +36,6 @@ setup(
     packages=[NAME],
     long_description=read('README.md'),
     classifiers=[
-        "License :: GNU",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering"
