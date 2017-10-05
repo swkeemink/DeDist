@@ -35,7 +35,7 @@ setup(
     package_dir={NAME: "./dedist"},
     packages=[NAME],
     license='GNU',
-    long_description=read('README.md'),
+    long_description=read('README'),
     classifiers=[
         "Natural Language :: English",
         "Programming Language :: Python",
