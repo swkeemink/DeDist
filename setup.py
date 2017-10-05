@@ -31,7 +31,7 @@ setup(
     author_email="swkeemink@scimail.eu",
     description="A Python library for estimating decoding distributions",
     url="https://github.com/swkeemink/DeDist",
-    download_url="NA",
+    download_url="https://github.com/swkeemink/DeDist/archive/0.1.tar.gz",
     package_dir={NAME: "./dedist"},
     packages=[NAME],
     license="GNU",
