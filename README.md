@@ -25,6 +25,10 @@ See the ipython notebooks in the example folder:
 <https://github.com/swkeemink/DeDist/blob/master/Examples/Correlated%20noise%201D.ipynb>
 
 
+Funding
+-------
+S.K. was supported by the EuroSpin Erasmus Mundus program and by the EPSRC Doctoral Training Centre in Neuroinformatics (EP/F500386/1 and BB/F529254/1).
+
 License
 -------
 
