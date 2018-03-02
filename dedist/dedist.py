@@ -8,7 +8,7 @@ from scipy.stats import mvn
 from multiprocessing import Pool
 
 def multi_fun(inputs):
-    ''' Function to apply mvnun in paralell
+    ''' Function to apply mvnun in parallel
 
     Parameters
     ----------
