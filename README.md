@@ -2,7 +2,7 @@ DeDist
 =====
 
 DeDist (Decoding Distributions) is a Python library for analytically calculating the
-full decoding distribution for a given neural encoding system with Gaussian noise, 
+full maximum likelihood decoding distribution for a given neural encoding system with Gaussian noise, 
 with arbitrary tuning curves (heterogeneous or homogeneous) and arbitrary noise correlations.
 
 For more information see the paper:
