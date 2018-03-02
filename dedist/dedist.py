@@ -170,10 +170,10 @@ def sample_E(fun,theta,par,sigma,x,x_,n,full_return=False):
     cov = 4*sigma**2*np.sum(Fs*Fs[:,None],axis=2)
 
     # now do a set of realizations
-    print 'Sampling from distribution'
+    print('Sampling from distribution')
     Errors = np.random.multivariate_normal(means,cov,size=n)
     sol_th = x_[Errors.argmin(axis=1)]
-    print 'Done'
+    print('Done')
     # return values
     if full_return:
         return sol_th,Errors,means,cov
@@ -250,23 +250,23 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
     diffs_sq = (fun(x,x_mult,par)[:,None]**2-fun(x,x_mult,par)**2)
 
     # then, find the means
-    if verbose: print 'finding means'
+    if verbose: print('finding means')
     means = np.zeros((ns-1,ns)) # sum((f-f')**2)
     # loop over all to be generated means
     for i in range(ns):
-        if verbose: print '\r'+str(i),
+        if verbose: print('\r'+str(i),)
         # loop over all stimuli, except when i=j
         means[:i,i] = np.sum( diffs_sq[i,:i] - 2*f*diffs[i,:i],axis=1 )
         means[i:,i] = np.sum( diffs_sq[i,i+1:] - 2*f*diffs[i,i+1:],axis=1 )
-    if verbose: print ''
+    if verbose: print('')
 
     # If low memory, only calculate one covariance matrix at a time
     if lowmem:
         if verbose:
-            print 'Low memory mode.'
-            print 'Finding p[x] of ' + str(ns) + ':'
+            print('Low memory mode.')
+            print('Finding p[x] of ' + str(ns) + ':')
         for i in range(ns):
-            if verbose: print '\r'+str(i),
+            if verbose: print('\r'+str(i),)
             # find current covariance
             cov = np.zeros((ns-1,ns-1))
             cov[:i,:i] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
@@ -285,12 +285,12 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
 
     # now for the tough one, the covariances
     if verbose:
-        print 'finding covariances, ',
-        print 'doing set x of ' + str(ns) + ':'
+        print('finding covariances, ',)
+        print('doing set x of ' + str(ns) + ':')
     # loop over coveriances to find
     covs = np.zeros((ns-1,ns-1,ns))
     for i in range(ns):
-        if verbose: print '\r'+str(i),
+        if verbose: print('\r'+str(i),)
         covs[:i,:i,i] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
                                   *diffs[i,:i],axis=2)
         covs[:i,i:,i] = 4*sigma**2*np.sum(diffs[i,:i][:,None]
@@ -299,10 +299,10 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
                                   *diffs[i,:i],axis=2)
         covs[i:,i:,i] = 4*sigma**2*np.sum(diffs[i,i+1:][:,None]
                                   *diffs[i,i+1:],axis=2)
-    if verbose: print ''
+    if verbose: print('')
 
     # calculate the cumulative distribution for each of the calculated covs
-    if verbose: print 'Calculating cumulative distributions'
+    if verbose: print('Calculating cumulative distributions')
 
     # calculate probabilities
     pool = Pool(None) # to use less than max processes, change 'None' to number
@@ -394,21 +394,21 @@ def est_p_cor(fun,theta,par,cov,x,x_,full_return=False,lowmem=False,verbose=True
 
     # then, find the means
     means = np.zeros((ns-1, ns))
-    if verbose: print 'finding means'
+    if verbose: print('finding means')
     for m in range(ns):
-        if verbose: print '\r'+str(m),
+        if verbose: print('\r'+str(m),)
         means[:m, m] = Lmeans[m] - Lmeans[:m]
         means[m:, m] = Lmeans[m] - Lmeans[m+1:]
-    if verbose: print ''
+    if verbose: print('')
 
     # now for the covariances
     if verbose:
-        print 'finding covariances, ',
-        print 'doing set x of ' + str(ns) + ':'
+        print('finding covariances, ',)
+        print('doing set x of ' + str(ns) + ':')
     # loop over coveriances to find
     covs = np.zeros((ns-1, ns-1, ns))
     for m in range(ns):
-        if verbose: print '\r'+str(m),
+        if verbose: print('\r'+str(m),)
         for a in range(m):
             for b in range(m):
                 covs[a, b, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
@@ -424,10 +424,10 @@ def est_p_cor(fun,theta,par,cov,x,x_,full_return=False,lowmem=False,verbose=True
                 covs[a-1, b-1, m] = np.dot(np.dot(diffs[m, a, :], cov_i),
                                            diffs[m, b, :])
 
-    if verbose: print ''
+    if verbose: print('')
 
     # calculate the cumulative distribution for each of the calculated covs
-    if verbose: print 'Calculating cumulative distributions'
+    if verbose: print('Calculating cumulative distributions')
 
     # calculate probabilities
     pool = Pool(None)  # to use less than max processes, change 'None' to number
