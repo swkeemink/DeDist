@@ -108,9 +108,6 @@ def get_cov(fun, theta, par, sigma, x, x_):
     # find dimensionality of multivar Gaussian
     ns = len(x_)
 
-    # find real population response
-    f = fun(x, theta, par)
-
     # find possible function values
     Fs = fun(x, x_.reshape(x_.shape + (1,)), par)
 
