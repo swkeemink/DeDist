@@ -262,6 +262,7 @@ def est_p(fun,theta,par,sigma,x,x_,full_return=False,lowmem=False,verbose=True):
 
     # If low memory, only calculate one covariance matrix at a time
     if lowmem:
+        p = np.zeros(ns)
         if verbose:
             print 'Low memory mode.'
             print 'Finding p[x] of ' + str(ns) + ':'
