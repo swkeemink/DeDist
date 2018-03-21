@@ -129,8 +129,8 @@ def get_cov(fun, theta, par, sigma, x, x_):
     return cov
 
 
-def sample_E(fun, theta, par, sigma, x, x_, n, fun_enc=None, par_enc=None,
-             full_return=False):
+def sample_E(fun, theta, par, sigma, x, x_, n,
+             full_return=False, fun_enc=None, par_enc=None):
     """Sample n errors from a multivariate gaussian distribution.
 
     Parameters
@@ -155,6 +155,9 @@ def sample_E(fun, theta, par, sigma, x, x_, n, fun_enc=None, par_enc=None,
     full_return : binary
         if False, only returns decoding distribution. If true, also returns
         sampled errors, calculated mean, and covariance
+    full_return : binary
+        if False, only returns decoding distribution. If true, also returns
+        sampled errors, calculated mean, and covariance
     fun_enc : function, optional
         Encoding function. If None, is assumed to same as the basic function.
         If some function is given, it should be of the same format as
@@ -162,9 +165,6 @@ def sample_E(fun, theta, par, sigma, x, x_, n, fun_enc=None, par_enc=None,
         the encoding function. (as fun will be the decoding function)
     par_enc : array, optional
         Parameters for the encoding function, if given
-    full_return : binary
-        if False, only returns decoding distribution. If true, also returns
-        sampled errors, calculated mean, and covariance
 
     Returns
     -------
@@ -212,8 +212,8 @@ def sample_E(fun, theta, par, sigma, x, x_, n, fun_enc=None, par_enc=None,
         return sol_th
 
 
-def est_p(fun, theta, par, sigma, x, x_, fun_enc=None, par_enc=None,
-          full_return=False, lowmem=False, verbose=True):
+def est_p(fun, theta, par, sigma, x, x_, full_return=False, lowmem=False,
+          verbose=True, fun_enc=None, par_enc=None):
     """Find the decoding distribution for a given function and stimulus.
 
     For each stimulus in fun, estimate the probability that it gives the
@@ -240,13 +240,6 @@ def est_p(fun, theta, par, sigma, x, x_, fun_enc=None, par_enc=None,
     full_return : binary
         if False, only returns decoding distribution. If true, also returns
         sampled errors, calculated mean, and covariance
-    fun_enc : function, optional
-        Encoding function. If None, is assumed to same as the basic function.
-        If some function is given, it should be of the same format as
-        fun, and reflects an ML decoder which has a suboptimal picture of
-        the encoding function. (as fun will be the decoding function)
-    par_enc : array, optional
-        Parameters for the encoding function, if given
     full_return : binary,optional
         if False, only returns decoding distribution. If true, also returns
         the calculated means and covariance for each stimulus in x_.
@@ -257,6 +250,13 @@ def est_p(fun, theta, par, sigma, x, x_, fun_enc=None, par_enc=None,
         Default False
     verbose : bool, optional
         Whether to print progress or not
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
 
     Returns
     -------
@@ -374,8 +374,8 @@ def est_p(fun, theta, par, sigma, x, x_, fun_enc=None, par_enc=None,
         return p
 
 
-def est_p_cor(fun, theta, par, cov, x, x_, fun_enc=None, par_enc=None,
-              full_return=False, lowmem=False, verbose=True):
+def est_p_cor(fun, theta, par, cov, x, x_, full_return=False, lowmem=False,
+              verbose=True, fun_enc=None, par_enc=None):
     """Find the decoding distribution for a given function and stimulus.
 
     Can give correlated noise.
@@ -404,13 +404,6 @@ def est_p_cor(fun, theta, par, cov, x, x_, fun_enc=None, par_enc=None,
         preferred values of neurons
     x_ : array
         actual values to be tried to decode
-    fun_enc : function, optional
-        Encoding function. If None, is assumed to same as the basic function.
-        If some function is given, it should be of the same format as
-        fun, and reflects an ML decoder which has a suboptimal picture of
-        the encoding function. (as fun will be the decoding function)
-    par_enc : array, optional
-        Parameters for the encoding function, if given
     full_return : binary,optional
         if False, only returns decoding distribution. If true, also returns
         the calculated means and covariance for each stimulus in x_.
@@ -421,6 +414,13 @@ def est_p_cor(fun, theta, par, cov, x, x_, fun_enc=None, par_enc=None,
         Default False
     verbose : bool, optional
         Whether to print progress or not
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
 
     Returns
     -------
