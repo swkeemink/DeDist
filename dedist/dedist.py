@@ -35,7 +35,7 @@ def multi_fun(inputs):
     return p
 
 
-def get_means(fun, theta, par, x, x_):
+def get_means(fun, theta, par, x, x_, fun_enc=None, par_enc=None):
     """Find the means for a multivariate normal describing an error landscape.
 
     Parameters
@@ -56,6 +56,13 @@ def get_means(fun, theta, par, x, x_):
     full_return : binary
         if False, only returns decoding distribution. If true, also returns
         sampled errors, calculated mean, and covariance
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
 
     Returns
     -------
@@ -63,8 +70,12 @@ def get_means(fun, theta, par, x, x_):
         for each stimulus in x_, what the mean error will be
 
     """
+    if fun_enc is None:
+        fun_enc = fun
+        par_enc = par
+
     # find real population response
-    f = fun(x, theta, par)
+    f = fun_enc(x, theta, par_enc)
 
     # find possible function values
     Fs = fun(x, x_.reshape(x_.shape + (1,)), par)
@@ -118,7 +129,8 @@ def get_cov(fun, theta, par, sigma, x, x_):
     return cov
 
 
-def sample_E(fun, theta, par, sigma, x, x_, n, full_return=False):
+def sample_E(fun, theta, par, sigma, x, x_, n, fun_enc=None, par_enc=None,
+             full_return=False):
     """Sample n errors from a multivariate gaussian distribution.
 
     Parameters
@@ -143,6 +155,16 @@ def sample_E(fun, theta, par, sigma, x, x_, n, full_return=False):
     full_return : binary
         if False, only returns decoding distribution. If true, also returns
         sampled errors, calculated mean, and covariance
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
+    full_return : binary
+        if False, only returns decoding distribution. If true, also returns
+        sampled errors, calculated mean, and covariance
 
     Returns
     -------
@@ -158,11 +180,15 @@ def sample_E(fun, theta, par, sigma, x, x_, n, full_return=False):
         The covariance matrix for the multivariate normal
 
     """
+    if fun_enc is None:
+        fun_enc = fun
+        par_enc = par
+
     # find dimensionality of multivar Gaussian
     ns = len(x_)
 
     # find real population response
-    f = fun(x, theta, par)
+    f = fun_enc(x, theta, par_enc)
 
     # find possible function values
     Fs = fun(x, x_.reshape(x_.shape + (1,)), par)
@@ -186,7 +212,7 @@ def sample_E(fun, theta, par, sigma, x, x_, n, full_return=False):
         return sol_th
 
 
-def est_p(fun, theta, par, sigma, x, x_,
+def est_p(fun, theta, par, sigma, x, x_, fun_enc=None, par_enc=None,
           full_return=False, lowmem=False, verbose=True):
     """Find the decoding distribution for a given function and stimulus.
 
@@ -211,6 +237,16 @@ def est_p(fun, theta, par, sigma, x, x_,
         preferred values of neurons
     x_ : array
         actual values to be tried to decode
+    full_return : binary
+        if False, only returns decoding distribution. If true, also returns
+        sampled errors, calculated mean, and covariance
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
     full_return : binary,optional
         if False, only returns decoding distribution. If true, also returns
         the calculated means and covariance for each stimulus in x_.
@@ -237,8 +273,11 @@ def est_p(fun, theta, par, sigma, x, x_,
         len(x_)). Thus covs[:,:,i] describes the relevant covariance matrix
         for stimulus i.
 
-
     """
+    if fun_enc is None:
+        fun_enc = fun
+        par_enc = par
+
     # find dimensionality of multivar Gaussian
     ns = len(x_)
 
@@ -247,7 +286,7 @@ def est_p(fun, theta, par, sigma, x, x_,
     upp = np.zeros(len(x_) - 1)
 
     # find real population response
-    f = fun(x, theta, par)
+    f = fun_enc(x, theta, par_enc)
 
     # make multidimensional version of x_ so less need for for loops
     # a + b.reshape(b.shape+(1,)) gives all possible combinations between
@@ -335,7 +374,7 @@ def est_p(fun, theta, par, sigma, x, x_,
         return p
 
 
-def est_p_cor(fun, theta, par, cov, x, x_,
+def est_p_cor(fun, theta, par, cov, x, x_, fun_enc=None, par_enc=None,
               full_return=False, lowmem=False, verbose=True):
     """Find the decoding distribution for a given function and stimulus.
 
@@ -365,6 +404,13 @@ def est_p_cor(fun, theta, par, cov, x, x_,
         preferred values of neurons
     x_ : array
         actual values to be tried to decode
+    fun_enc : function, optional
+        Encoding function. If None, is assumed to same as the basic function.
+        If some function is given, it should be of the same format as
+        fun, and reflects an ML decoder which has a suboptimal picture of
+        the encoding function. (as fun will be the decoding function)
+    par_enc : array, optional
+        Parameters for the encoding function, if given
     full_return : binary,optional
         if False, only returns decoding distribution. If true, also returns
         the calculated means and covariance for each stimulus in x_.
@@ -393,6 +439,10 @@ def est_p_cor(fun, theta, par, cov, x, x_,
 
 
     """
+    if fun_enc is None:
+        fun_enc = fun
+        par_enc = par
+
     # find dimensionality of multivar Gaussian
     ns = len(x_)
 
@@ -404,7 +454,7 @@ def est_p_cor(fun, theta, par, cov, x, x_,
     upp = np.zeros(len(x_) - 1)
 
     # find real population response
-    f = fun(x, theta, par)
+    f = fun_enc(x, theta, par_enc)
 
     # make multidimensional version of x_ so less need for for loops
     # a + b.reshape(b.shape+(1,)) gives all possible combinations between
